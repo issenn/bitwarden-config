@@ -1,0 +1,88 @@
+version: '3.7'
+
+services:
+  bitwardenrs:
+    image: bitwardenrs/server:1.14.2
+    container_name: "bitwardenrs"
+    hostname: "bitwardenrs"
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    # ports:
+    #   - "127.0.0.1:8000:80"
+    #   - "127.0.0.1:3012:3012"
+    networks:
+      - "traefik"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 10M
+        reservations:
+          cpus: '0.25'
+          memory: 4M
+    volumes:
+      - type: bind
+        source: "./bw-data"
+        target: "/data"
+    env_file:
+      - config.env
+      - .config.secret.env
+    environment:
+      TZ: 'Asia/Shanghai'
+      WEBSOCKET_ENABLED: 'true'  # Required to use websockets
+      SIGNUPS_ALLOWED: 'false'    # set to false to disable signups
+      ROCKET_WORKERS: 10
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      # bitwarden-ui
+      - "traefik.http.routers.bitwarden-ui-https.rule=Host(`bitwarden.issenn.cf`)"
+      - "traefik.http.routers.bitwarden-ui-https.entrypoints=websecure"
+      - "traefik.http.routers.bitwarden-ui-https.tls=true"
+      - "traefik.http.routers.bitwarden-ui-https.tls.certresolver=manual"
+      - "traefik.http.routers.bitwarden-ui-https.service=bitwarden-ui"
+      - "traefik.http.routers.bitwarden-ui-http.rule=Host(`bitwarden.issenn.cf`)"
+      - "traefik.http.routers.bitwarden-ui-http.entrypoints=web"
+      - "traefik.http.routers.bitwarden-ui-http.middlewares=https-redirect"
+      - "traefik.http.routers.bitwarden-ui-http.service=bitwarden-ui"
+      - "traefik.http.services.bitwarden-ui.loadbalancer.server.port=80"
+      # bitwarden-websocket
+      - "traefik.http.routers.bitwarden-websocket-https.rule=Host(`bitwarden.issenn.cf`) && Path(`/notifications/hub`)"
+      - "traefik.http.routers.bitwarden-websocket-https.entrypoints=websecure"
+      - "traefik.http.routers.bitwarden-websocket-https.tls=true"
+      - "traefik.http.routers.bitwarden-websocket-https.tls.certresolver=manual"
+      - "traefik.http.routers.bitwarden-websocket-https.service=bitwarden-websocket"
+      - "traefik.http.routers.bitwarden-websocket-http.rule=Host(`bitwarden.issenn.cf`) && Path(`/notifications/hub`)"
+      - "traefik.http.routers.bitwarden-websocket-http.entrypoints=web"
+      - "traefik.http.routers.bitwarden-websocket-http.middlewares=https-redirect"
+      - "traefik.http.routers.bitwarden-websocket-http.service=bitwarden-websocket"
+      - "traefik.http.services.bitwarden-websocket.loadbalancer.server.port=3012"
+
+#   caddy:
+#     image: abiosoft/caddy
+#     restart: always
+#     volumes:
+#       - ./Caddyfile:/etc/Caddyfile:ro
+#       - caddycerts:/root/.caddy
+#     ports:
+#       - 80:80 # needed for Let's Encrypt
+#       - 443:443
+#     environment:
+#       ACME_AGREE: 'true'              # agree to Let's Encrypt Subscriber Agreement
+#       DOMAIN: 'bitwarden.example.org' # CHANGE THIS! Used for Auto Let's Encrypt SSL
+#       EMAIL: 'bitwarden@example.org'  # CHANGE THIS! Optional, provided to Let's Encrypt
+
+# volumes:
+#   caddycerts:
+
+# 先创建外部网卡
+# docker network create traefik
+networks:
+#   default:
+#     # driver: bridge
+#     external: true
+  traefik:
+    name: "traefik"
+    # driver: "bridge"
+    external: true
