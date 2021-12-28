@@ -150,8 +150,8 @@ $RECYCLE.BIN/
 # Custom rules (everything added below won't be overriden by 'Generate .gitignore File' if you use 'Update' option)
 
 # bw-data/*
-**/*.sqlite3-shm
-**/*.sqlite3-wal
+# **/*.sqlite3-shm
+# **/*.sqlite3-wal
 **/icon_cache/*
 **/logs/*
 !**/.gitkeep

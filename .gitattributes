@@ -1,6 +1,9 @@
 **/*.secret.env         filter=git-crypt    diff=git-crypt
-**/*.sqlite3            filter=git-crypt    diff=git-crypt
+# **/*.sqlite3            filter=git-crypt    diff=git-crypt
+**/database/**/*        filter=git-crypt    diff=git-crypt
+**/attachments/**/*     filter=git-crypt    diff=git-crypt
 **/key/**/*.der         filter=git-crypt    diff=git-crypt
 **/key/**/*.pem         filter=git-crypt    diff=git-crypt
 **/key/**/*.pub.der     filter=git-crypt    diff=git-crypt
+.gitkeep                !filter             !diff
 .gitattributes          !filter             !diff
