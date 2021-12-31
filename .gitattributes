@@ -5,5 +5,6 @@
 **/key/**/*.der         filter=git-crypt    diff=git-crypt
 **/key/**/*.pem         filter=git-crypt    diff=git-crypt
 **/key/**/*.pub.der     filter=git-crypt    diff=git-crypt
+**/key/**/*.pub.pem     filter=git-crypt    diff=git-crypt
 .gitkeep                !filter             !diff
 .gitattributes          !filter             !diff
