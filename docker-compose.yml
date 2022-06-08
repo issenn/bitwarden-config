@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   vaultwarden:
-    image: vaultwarden/server:1.25
+    image: vaultwarden/server:1.25.0
     container_name: "vaultwarden"
     hostname: "vaultwarden"
     restart: unless-stopped
