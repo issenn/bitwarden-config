@@ -1,8 +1,10 @@
-version: '3.7'
+version: '3.9'
+
+name: vaultwarden
 
 services:
   vaultwarden:
-    image: vaultwarden/server:1.25.0
+    image: vaultwarden/server:1.27.0
     container_name: "vaultwarden"
     hostname: "vaultwarden"
     restart: unless-stopped
@@ -17,11 +19,15 @@ services:
       resources:
         limits:
           cpus: '0.50'
-          memory: 10M
+          memory: 100M
         reservations:
           cpus: '0.25'
-          memory: 4M
+          memory: 6M
     volumes:
+      - type: bind
+        source: "./.env"
+        target: "/.env"
+        read_only: true
       - type: bind
         source: "./bw-data"
         target: "/data"
@@ -41,22 +47,22 @@ services:
       - "traefik.http.routers.bitwarden-ui-https.entrypoints=websecure"
       - "traefik.http.routers.bitwarden-ui-https.tls=true"
       - "traefik.http.routers.bitwarden-ui-https.tls.certresolver=manual"
-      - "traefik.http.routers.bitwarden-ui-https.service=bitwarden-ui"
+      - "traefik.http.routers.bitwarden-ui-https.service=bitwarden-ui@docker"
       - "traefik.http.routers.bitwarden-ui-http.rule=Host(`bitwarden.issenn.cf`)"
       - "traefik.http.routers.bitwarden-ui-http.entrypoints=web"
-      - "traefik.http.routers.bitwarden-ui-http.middlewares=https-redirect"
-      - "traefik.http.routers.bitwarden-ui-http.service=bitwarden-ui"
+      - "traefik.http.routers.bitwarden-ui-http.middlewares=redirect-https@file"
+      - "traefik.http.routers.bitwarden-ui-http.service=bitwarden-ui@docker"
       - "traefik.http.services.bitwarden-ui.loadbalancer.server.port=80"
       # bitwarden-websocket
       - "traefik.http.routers.bitwarden-websocket-https.rule=Host(`bitwarden.issenn.cf`) && Path(`/notifications/hub`)"
       - "traefik.http.routers.bitwarden-websocket-https.entrypoints=websecure"
       - "traefik.http.routers.bitwarden-websocket-https.tls=true"
       - "traefik.http.routers.bitwarden-websocket-https.tls.certresolver=manual"
-      - "traefik.http.routers.bitwarden-websocket-https.service=bitwarden-websocket"
+      - "traefik.http.routers.bitwarden-websocket-https.service=bitwarden-websocket@docker"
       - "traefik.http.routers.bitwarden-websocket-http.rule=Host(`bitwarden.issenn.cf`) && Path(`/notifications/hub`)"
       - "traefik.http.routers.bitwarden-websocket-http.entrypoints=web"
-      - "traefik.http.routers.bitwarden-websocket-http.middlewares=https-redirect"
-      - "traefik.http.routers.bitwarden-websocket-http.service=bitwarden-websocket"
+      - "traefik.http.routers.bitwarden-websocket-http.middlewares=redirect-https@file"
+      - "traefik.http.routers.bitwarden-websocket-http.service=bitwarden-websocket@docker"
       - "traefik.http.services.bitwarden-websocket.loadbalancer.server.port=3012"
 
 #   caddy:
